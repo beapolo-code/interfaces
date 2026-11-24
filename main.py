@@ -99,79 +99,130 @@ MDScreenManager:
     id: drawer
     radius: 0, dp(16), dp(16), 0
     width: dp(288)
+    size_hint_y: None
+    height: self.parent.height if self.parent else dp(600)
     theme_bg_color: "Custom"
-    md_bg_color: app.bg_card
+    background_color: [0.09, 0.12, 0.24, 1]
+    md_bg_color: [0.09, 0.12, 0.24, 1]
+    elevation: 0
 
-    MDNavigationDrawerMenu:
-
-        MDNavigationDrawerLabel:
-            text: "VIGÍA SOS"
-            theme_text_color: "Custom"
-            text_color: app.accent_cyan
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint: 1, 1
+        padding: dp(16)
+        spacing: dp(12)
+        theme_bg_color: "Custom"
+        md_bg_color: [0.09, 0.12, 0.24, 1]
 
         MDLabel:
-            text: "Protección 24/7"
+            text: "VIGÍA SOS"
+            bold: True
+            size_hint_y: None
+            height: dp(40)
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+
+        MDLabel:
+            text: app.user_name + " · " + app.user_phone_display
+            font_size: '12sp'
+            size_hint_y: None
+            height: dp(24)
             theme_text_color: "Custom"
             text_color: app.text_secondary
-            font_style: "Body"
-            role: "small"
-            adaptive_height: True
-            padding: ['16dp', 0, '16dp', '8dp']
 
-        MDDivider:
-            theme_divider_color: "Custom"
-            color: app.border_input
-
-        MDNavigationDrawerItem:
-            on_release: app.drawer_navigate("main", "nav_home")
-            MDNavigationDrawerItemLeadingIcon:
-                icon: "home"
-            MDNavigationDrawerItemText:
-                text: "Inicio"
-
-        MDNavigationDrawerItem:
-            on_release: app.drawer_navigate("cameras")
-            MDNavigationDrawerItemLeadingIcon:
-                icon: "videocam"
-            MDNavigationDrawerItemText:
-                text: "Cámaras"
-
-        MDNavigationDrawerItem:
-            on_release: app.drawer_navigate("main", "nav_profile")
-            MDNavigationDrawerItemLeadingIcon:
-                icon: "settings"
-            MDNavigationDrawerItemText:
-                text: "Ajustes"
-
-        MDDivider:
-            theme_divider_color: "Custom"
-            color: app.border_input
-
-        MDNavigationDrawerItem:
+        MDButton:
+            id: drawer_sos_item
+            style: "filled"
+            theme_bg_color: "Custom"
+            theme_width: "Custom"
+            md_bg_color: [0.85, 0.15, 0.2, 1]
+            size_hint_x: 1
+            size_hint_y: None
+            height: dp(52)
             on_release: app.drawer_sos()
-            MDNavigationDrawerItemLeadingIcon:
-                icon: "warning"
-                theme_text_color: "Custom"
-                text_color: app.md3_error
-            MDNavigationDrawerItemText:
-                text: "Alerta SOS"
-                theme_text_color: "Custom"
-                text_color: app.md3_error
-            MDNavigationDrawerItemTrailingText:
-                text: "SOS"
-                theme_text_color: "Custom"
-                text_color: app.md3_error
 
-        MDDivider:
-            theme_divider_color: "Custom"
-            color: app.border_input
+            MDButtonIcon:
+                icon: "alert-circle"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
 
-        MDNavigationDrawerItem:
+            MDButtonText:
+                text: "ENVIAR ALERTA SOS"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+
+        MDButton:
+            id: drawer_home_item
+            style: "tonal"
+            theme_width: "Custom"
+            size_hint_x: 1
+            size_hint_y: None
+            height: dp(48)
+            on_release: app.drawer_navigate("main", "nav_home")
+
+            MDButtonText:
+                text: "Inicio"
+                theme_text_color: "Custom"
+                text_color: app.text_primary
+
+        MDButton:
+            id: drawer_contacts_item
+            style: "tonal"
+            theme_width: "Custom"
+            size_hint_x: 1
+            size_hint_y: None
+            height: dp(48)
+            on_release: app.drawer_navigate("main", "nav_profile")
+
+            MDButtonText:
+                text: "Contactos/Emergencias"
+                theme_text_color: "Custom"
+                text_color: app.text_primary
+
+        MDButton:
+            id: drawer_cameras_item
+            style: "tonal"
+            theme_width: "Custom"
+            size_hint_x: 1
+            size_hint_y: None
+            height: dp(48)
+            on_release: app.drawer_navigate("cameras")
+
+            MDButtonText:
+                text: "Cámaras"
+                theme_text_color: "Custom"
+                text_color: app.text_primary
+
+        MDButton:
+            id: drawer_history_item
+            style: "tonal"
+            theme_width: "Custom"
+            size_hint_x: 1
+            size_hint_y: None
+            height: dp(48)
+            on_release: app.drawer_navigate("main", "nav_sos")
+
+            MDButtonText:
+                text: "Historial de Alertas"
+                theme_text_color: "Custom"
+                text_color: app.text_primary
+
+        MDButton:
+            id: drawer_logout_item
+            style: "tonal"
+            theme_width: "Custom"
+            size_hint_x: 1
+            size_hint_y: None
+            height: dp(48)
             on_release: app.close_nav_drawer(); app.logout()
-            MDNavigationDrawerItemLeadingIcon:
-                icon: "logout"
-            MDNavigationDrawerItemText:
-                text: "Cerrar sesión"
+
+            MDButtonText:
+                text: "Cerrar Sesión"
+                theme_text_color: "Custom"
+                text_color: app.text_primary
+
+        Widget:
+            size_hint_y: 1
 
 # ==========================================================================
 # AUTENTICACIÓN
@@ -517,7 +568,8 @@ MDScreenManager:
 
     MDNavigationLayout:
         id: main_nav_layout
-        size_hint: 1, 1
+        size_hint: None, None
+        size: self.parent.size if self.parent else (dp(1), dp(1))
 
         MDScreenManager:
             id: main_tabs
@@ -580,10 +632,11 @@ MDScreenManager:
                                 size_hint_x: 1
 
                             MDButton:
-                                style: "tonal"
+                                id: topbar_sos_button
+                                style: "filled"
                                 theme_bg_color: "Custom"
                                 theme_width: "Custom"
-                                md_bg_color: app.zone_alert
+                                md_bg_color: app.sos_red
                                 size_hint: None, None
                                 size: '80dp', '48dp'
                                 radius: [100, 100, 100, 100]
@@ -591,8 +644,9 @@ MDScreenManager:
 
                                 MDButtonText:
                                     text: "SOS"
+                                    font_size: '16sp'
                                     theme_text_color: "Custom"
-                                    text_color: app.md3_on_error_container
+                                    text_color: app.md3_on_sos
 
                         MDLabel:
                             text: "Hola, " + app.user_name
@@ -1077,7 +1131,8 @@ MDScreenManager:
 
     MDNavigationLayout:
         id: camera_nav_layout
-        size_hint: 1, 1
+        size_hint: None, None
+        size: self.parent.size if self.parent else (dp(1), dp(1))
 
         MDScreenManager:
             id: camera_content_manager
@@ -1449,7 +1504,18 @@ class ExpressiveApp(MDApp):
 
         root = Builder.load_string(KV)
         root.transition = CardTransition(direction='left', mode='push', duration=0.36)
+        root.bind(size=lambda *args: self.sync_screen_sizes())
+        Clock.schedule_once(lambda dt: self.sync_screen_sizes(), 0)
         return root
+
+    def sync_screen_sizes(self, *args):
+        """Mantiene cada MDScreen a tamaño completo para que el drawer mida bien."""
+        if not self.root:
+            return
+        target = self.root.size
+        for screen in self.root.screens:
+            if tuple(screen.size) != tuple(target):
+                screen.size = target
 
     def on_start(self):
         sos_breathing = (
@@ -1508,7 +1574,13 @@ class ExpressiveApp(MDApp):
         self.navigate_to(screen_name)
 
     def drawer_sos(self):
-        self.close_nav_drawer()
+        # Cierre inmediato para que el overlay de alerta nunca quede tapado.
+        if self.root:
+            for screen_name in ('main', 'cameras'):
+                screen = self.root.get_screen(screen_name)
+                drawer = screen.ids.get('main_drawer') or screen.ids.get('camera_drawer')
+                if drawer:
+                    drawer.set_state('close', animation=False)
         self.switch_main_tab('nav_sos')
         self.navigate_to('main')
         self.activate_sos_overlay()

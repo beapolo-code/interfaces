@@ -372,17 +372,17 @@
 
         /* Botón de alerta SIEMPRE visible en la barra lateral */
         .nav-link--alert {
-            background-color: rgba(var(--md-sys-rgb-sos), 0.14);
-            color: var(--btn-primary);
+            background-color: var(--btn-primary);
+            color: var(--md-sys-color-on-sos);
             border: 1px solid var(--btn-primary);
             font-weight: 700;
         }
 
         .sidebar-nav .nav-link--alert:hover:not(.active),
         .sidebar-nav .nav-link--alert:focus-visible {
-            background-color: var(--btn-primary);
+            background-color: var(--btn-primary-hover);
             color: var(--md-sys-color-on-sos);
-            border-color: var(--btn-primary);
+            border-color: var(--btn-primary-hover);
             transform: translateX(4px);
             box-shadow: 0 6px 18px rgba(var(--md-sys-rgb-sos), 0.45);
         }

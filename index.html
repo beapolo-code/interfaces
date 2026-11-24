@@ -890,9 +890,9 @@
 
         /* Alerta SOS siempre visible y con área táctil >= 48px */
         .nav-item--alert {
-            color: var(--md-sys-color-error);
-            background-color: var(--md-sys-color-error-container);
-            border: 1px solid var(--md-sys-color-error);
+            color: var(--md-sys-color-on-sos);
+            background-color: var(--md-sys-color-sos);
+            border: 1px solid var(--md-sys-color-sos);
             border-radius: var(--radius-pill);
             padding: 4px 8px;
             font-weight: 700;
@@ -900,7 +900,8 @@
 
         .nav-item--alert:hover,
         .nav-item--alert:focus-visible {
-            background-color: var(--md-sys-color-sos);
+            background-color: var(--md-sys-color-sos-hover);
+            border-color: var(--md-sys-color-sos-hover);
             color: var(--md-sys-color-on-sos);
         }
 
