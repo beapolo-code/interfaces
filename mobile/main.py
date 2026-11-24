@@ -37,16 +37,26 @@ from kivy.properties import (
 from kivy.uix.screenmanager import CardTransition
 from kivy.utils import get_color_from_hex, platform
 from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.label import MDIcon, MDLabel
 from kivymd.uix.navigationbar import MDNavigationItem
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
 
 
 class BottomNavItem(MDNavigationItem):
-    """Item de MDNavigationBar que recuerda la pantalla asociada."""
+    """Item de MDNavigationBar con pantalla asociada y acción opcional."""
 
     screen_name = StringProperty("nav_home")
     icon_name = StringProperty("home")
     label_text = StringProperty("Inicio")
+    action_name = StringProperty("")
+
+    def on_release(self):
+        super().on_release()
+        if self.action_name == "sos":
+            app = MDApp.get_running_app()
+            if app:
+                app.activate_sos_overlay()
 
 
 Factory.register("BottomNavItem", cls=BottomNavItem)
@@ -172,7 +182,7 @@ MDScreenManager:
             size_hint_x: 1
             size_hint_y: None
             height: dp(48)
-            on_release: app.drawer_navigate("main", "nav_profile")
+            on_release: app.drawer_navigate("main", "nav_contacts")
 
             MDButtonText:
                 text: "Contactos/Emergencias"
@@ -631,23 +641,6 @@ MDScreenManager:
                             Widget:
                                 size_hint_x: 1
 
-                            MDButton:
-                                id: topbar_sos_button
-                                style: "filled"
-                                theme_bg_color: "Custom"
-                                theme_width: "Custom"
-                                md_bg_color: app.sos_red
-                                size_hint: None, None
-                                size: '80dp', '48dp'
-                                radius: [100, 100, 100, 100]
-                                on_release: app.activate_sos_overlay()
-
-                                MDButtonText:
-                                    text: "SOS"
-                                    font_size: '16sp'
-                                    theme_text_color: "Custom"
-                                    text_color: app.md3_on_sos
-
                         MDLabel:
                             text: "Hola, " + app.user_name
                             font_style: "Headline"
@@ -868,6 +861,236 @@ MDScreenManager:
                     Widget:
 
             MDScreen:
+                name: "nav_contacts"
+
+                MDScrollView:
+                    do_scroll_x: False
+
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        padding: ['20dp', '16dp', '20dp', '96dp']
+                        spacing: '14dp'
+                        adaptive_height: True
+                        theme_bg_color: "Custom"
+                        md_bg_color: app.bg_main
+
+                        MDBoxLayout:
+                            adaptive_height: True
+                            spacing: '10dp'
+
+                            MDIcon:
+                                icon: "contacts"
+                                theme_text_color: "Custom"
+                                text_color: app.accent_cyan
+                                font_size: '30sp'
+
+                            MDBoxLayout:
+                                orientation: 'vertical'
+                                adaptive_height: True
+
+                                MDLabel:
+                                    text: "Contactos de Emergencia"
+                                    font_style: "Title"
+                                    role: "medium"
+                                    adaptive_height: True
+                                    theme_text_color: "Custom"
+                                    text_color: app.text_primary
+
+                                MDLabel:
+                                    text: "Personas y organismos que reciben tus alertas SOS"
+                                    font_style: "Body"
+                                    role: "small"
+                                    adaptive_height: True
+                                    theme_text_color: "Custom"
+                                    text_color: app.text_secondary
+
+                        MDCard:
+                            id: contacts_list_card
+                            orientation: 'vertical'
+                            adaptive_height: True
+                            padding: '16dp'
+                            spacing: '10dp'
+                            theme_bg_color: "Custom"
+                            md_bg_color: app.bg_card
+                            radius: [20, 20, 20, 20]
+
+                            MDLabel:
+                                id: contacts_list_title
+                                text: "Contactos registrados"
+                                font_style: "Title"
+                                role: "small"
+                                adaptive_height: True
+                                theme_text_color: "Custom"
+                                text_color: app.text_primary
+
+                            MDBoxLayout:
+                                id: contacts_list
+                                orientation: 'vertical'
+                                adaptive_height: True
+                                spacing: '8dp'
+
+                        MDCard:
+                            orientation: 'vertical'
+                            adaptive_height: True
+                            padding: '16dp'
+                            spacing: '12dp'
+                            theme_bg_color: "Custom"
+                            md_bg_color: app.bg_card
+                            radius: [20, 20, 20, 20]
+
+                            MDLabel:
+                                text: "Agregar contacto"
+                                font_style: "Title"
+                                role: "small"
+                                adaptive_height: True
+                                theme_text_color: "Custom"
+                                text_color: app.text_primary
+
+                            MDTextField:
+                                id: contact_name
+                                mode: "filled"
+                                theme_text_color: "Custom"
+                                text_color_normal: app.text_primary
+                                text_color_focus: app.text_primary
+                                theme_line_color: "Custom"
+                                line_color_normal: app.border_input
+                                line_color_focus: app.accent_cyan
+                                theme_bg_color: "Custom"
+                                fill_color_normal: app.bg_input_nav
+                                fill_color_focus: app.bg_input_nav
+                                radius: [14, 14, 0, 0]
+
+                                MDTextFieldHintText:
+                                    text: "Nombre del contacto"
+                                    theme_text_color: "Custom"
+                                    text_color_normal: app.text_secondary
+                                    text_color_focus: app.accent_cyan
+
+                                MDTextFieldLeadingIcon:
+                                    icon: "account"
+                                    theme_icon_color: "Custom"
+                                    icon_color_normal: app.accent_cyan
+                                    icon_color_focus: app.accent_cyan
+
+                            MDTextField:
+                                id: contact_phone
+                                mode: "filled"
+                                theme_text_color: "Custom"
+                                text_color_normal: app.text_primary
+                                text_color_focus: app.text_primary
+                                theme_line_color: "Custom"
+                                line_color_normal: app.border_input
+                                line_color_focus: app.accent_cyan
+                                theme_bg_color: "Custom"
+                                fill_color_normal: app.bg_input_nav
+                                fill_color_focus: app.bg_input_nav
+                                radius: [14, 14, 0, 0]
+
+                                MDTextFieldHintText:
+                                    text: "Teléfono"
+                                    theme_text_color: "Custom"
+                                    text_color_normal: app.text_secondary
+                                    text_color_focus: app.accent_cyan
+
+                                MDTextFieldLeadingIcon:
+                                    icon: "phone"
+                                    theme_icon_color: "Custom"
+                                    icon_color_normal: app.accent_cyan
+                                    icon_color_focus: app.accent_cyan
+
+                            MDLabel:
+                                text: "Tipo de contacto"
+                                font_style: "Body"
+                                role: "small"
+                                adaptive_height: True
+                                theme_text_color: "Custom"
+                                text_color: app.text_secondary
+
+                            MDBoxLayout:
+                                adaptive_height: True
+                                spacing: '8dp'
+
+                                MDButton:
+                                    style: "filled" if app.new_contact_type == 'police' else "tonal"
+                                    theme_bg_color: "Custom"
+                                    theme_width: "Custom"
+                                    md_bg_color: app.btn_primary if app.new_contact_type == 'police' else app.bg_input_nav
+                                    size_hint_x: .25
+                                    size_hint_y: None
+                                    height: dp(40)
+                                    on_release: app.set_new_contact_type('police')
+
+                                    MDButtonText:
+                                        text: "Policía"
+                                        font_size: '11sp'
+                                        theme_text_color: "Custom"
+                                        text_color: app.md3_on_primary if app.new_contact_type == 'police' else app.text_primary
+
+                                MDButton:
+                                    style: "filled" if app.new_contact_type == 'firefighter' else "tonal"
+                                    theme_bg_color: "Custom"
+                                    theme_width: "Custom"
+                                    md_bg_color: app.btn_primary if app.new_contact_type == 'firefighter' else app.bg_input_nav
+                                    size_hint_x: .25
+                                    size_hint_y: None
+                                    height: dp(40)
+                                    on_release: app.set_new_contact_type('firefighter')
+
+                                    MDButtonText:
+                                        text: "Bomberos"
+                                        font_size: '11sp'
+                                        theme_text_color: "Custom"
+                                        text_color: app.md3_on_primary if app.new_contact_type == 'firefighter' else app.text_primary
+
+                                MDButton:
+                                    style: "filled" if app.new_contact_type == 'medical' else "tonal"
+                                    theme_bg_color: "Custom"
+                                    theme_width: "Custom"
+                                    md_bg_color: app.btn_primary if app.new_contact_type == 'medical' else app.bg_input_nav
+                                    size_hint_x: .25
+                                    size_hint_y: None
+                                    height: dp(40)
+                                    on_release: app.set_new_contact_type('medical')
+
+                                    MDButtonText:
+                                        text: "Médico"
+                                        font_size: '11sp'
+                                        theme_text_color: "Custom"
+                                        text_color: app.md3_on_primary if app.new_contact_type == 'medical' else app.text_primary
+
+                                MDButton:
+                                    style: "filled" if app.new_contact_type == 'other' else "tonal"
+                                    theme_bg_color: "Custom"
+                                    theme_width: "Custom"
+                                    md_bg_color: app.btn_primary if app.new_contact_type == 'other' else app.bg_input_nav
+                                    size_hint_x: .25
+                                    size_hint_y: None
+                                    height: dp(40)
+                                    on_release: app.set_new_contact_type('other')
+
+                                    MDButtonText:
+                                        text: "Otro"
+                                        font_size: '11sp'
+                                        theme_text_color: "Custom"
+                                        text_color: app.md3_on_primary if app.new_contact_type == 'other' else app.text_primary
+
+                            MDButton:
+                                style: "filled"
+                                theme_bg_color: "Custom"
+                                theme_width: "Custom"
+                                md_bg_color: app.action_blue
+                                size_hint_x: 1
+                                size_hint_y: None
+                                height: dp(48)
+                                radius: [100, 100, 100, 100]
+                                on_release: app.add_emergency_contact_from_form()
+
+                                MDButtonText:
+                                    text: "GUARDAR CONTACTO"
+                                    theme_text_color: "Custom"
+                                    text_color: 1, 1, 1, 1
+
+            MDScreen:
                 name: "nav_profile"
 
                 MDBoxLayout:
@@ -1037,10 +1260,27 @@ MDScreenManager:
                 text_color_normal: app.text_secondary
 
         BottomNavItem:
+            id: nav_contacts_item
+            screen_name: "nav_contacts"
+            icon_name: "contacts"
+            label_text: "Contactos"
+            indicator_color: app.btn_primary
+
+            MDNavigationItemIcon:
+                icon: nav_contacts_item.icon_name
+                icon_color_active: app.btn_primary
+                icon_color_normal: app.text_secondary
+            MDNavigationItemLabel:
+                text: nav_contacts_item.label_text
+                text_color_active: app.btn_primary
+                text_color_normal: app.text_secondary
+
+        BottomNavItem:
             id: nav_sos_item
             screen_name: "nav_sos"
             icon_name: "warning"
             label_text: "SOS"
+            action_name: "sos"
             indicator_color: app.sos_red
 
             MDNavigationItemIcon:
@@ -1471,6 +1711,7 @@ class ExpressiveApp(MDApp):
     user_name = StringProperty('Usuario')
     user_phone_display = StringProperty('Sin registrar')
     camera_filter = StringProperty('all')
+    new_contact_type = StringProperty('other')
     current_user_id = NumericProperty(0)
     current_user_email = StringProperty('')
     current_user_role = StringProperty('')
@@ -1600,6 +1841,119 @@ class ExpressiveApp(MDApp):
         tab_name = getattr(item, 'screen_name', None)
         if tab_name and self.root:
             self.root.get_screen('main').ids.main_tabs.current = tab_name
+            if tab_name == 'nav_contacts':
+                Clock.schedule_once(lambda dt: self.refresh_emergency_contacts(), 0)
+
+    def set_new_contact_type(self, contact_type):
+        self.new_contact_type = contact_type
+
+    @staticmethod
+    def contact_type_icon(contact_type):
+        return {
+            'police': 'police-badge',
+            'firefighter': 'fire-truck',
+            'medical': 'medical-bag',
+        }.get(contact_type, 'account')
+
+    @staticmethod
+    def contact_type_label(contact_type):
+        return {
+            'police': 'Policía',
+            'firefighter': 'Bomberos',
+            'medical': 'Médico',
+            'other': 'Otro',
+        }.get(contact_type, 'Otro')
+
+    def refresh_emergency_contacts(self, *args):
+        """Pinta los contactos reales guardados en PostgreSQL."""
+        if not self.root:
+            return
+        main_screen = self.root.get_screen('main')
+        if 'contacts_list' not in main_screen.ids:
+            return
+
+        container = main_screen.ids.contacts_list
+        container.clear_widgets()
+        try:
+            contacts = db_manager.get_emergency_contacts()
+        except Exception:
+            traceback.print_exc()
+            contacts = []
+
+        main_screen.ids.contacts_list_title.text = (
+            f"Contactos registrados ({len(contacts)})"
+        )
+
+        if not contacts:
+            container.add_widget(MDLabel(
+                text="Aún no hay contactos configurados. Agrega el primero abajo.",
+                font_style="Body",
+                role="small",
+                adaptive_height=True,
+                theme_text_color="Custom",
+                text_color=self.text_secondary,
+            ))
+            return
+
+        for contact in contacts:
+            contact_type = contact.get('contact_type') or 'other'
+            row = MDBoxLayout(
+                orientation="horizontal",
+                adaptive_height=True,
+                spacing=dp(12),
+                padding=(0, dp(6)),
+            )
+            row.add_widget(MDIcon(
+                icon=self.contact_type_icon(contact_type),
+                theme_text_color="Custom",
+                text_color=self.accent_cyan,
+            ))
+
+            info = MDBoxLayout(orientation="vertical", adaptive_height=True)
+            info.add_widget(MDLabel(
+                text=contact.get('name') or 'Sin nombre',
+                bold=True,
+                adaptive_height=True,
+                theme_text_color="Custom",
+                text_color=self.text_primary,
+            ))
+            phone = contact.get('phone') or 'Sin teléfono'
+            info.add_widget(MDLabel(
+                text=f"{self.contact_type_label(contact_type)} · {phone}",
+                font_style="Body",
+                role="small",
+                adaptive_height=True,
+                theme_text_color="Custom",
+                text_color=self.text_secondary,
+            ))
+            row.add_widget(info)
+            container.add_widget(row)
+
+    def add_emergency_contact_from_form(self):
+        if not self.root:
+            return
+        main_screen = self.root.get_screen('main')
+        name = main_screen.ids.contact_name.text.strip()
+        phone = main_screen.ids.contact_phone.text.strip()
+
+        if not name or not phone:
+            self.show_snackbar("Completa el nombre y el teléfono del contacto.")
+            return
+
+        try:
+            ok, msg = db_manager.add_emergency_contact(
+                name, self.new_contact_type, phone
+            )
+        except Exception:
+            traceback.print_exc()
+            self.show_snackbar("No se pudo guardar el contacto.")
+            return
+
+        self.show_snackbar(msg)
+        if ok:
+            main_screen.ids.contact_name.text = ""
+            main_screen.ids.contact_phone.text = ""
+            self.refresh_emergency_contacts()
 
     def set_view_mode(self, mode):
         """Cambia entre tamaño escritorio y móvil en caliente."""
@@ -1775,6 +2129,7 @@ class ExpressiveApp(MDApp):
         self.current_user_role = ""
         self.user_name = "Usuario"
         self.user_phone_display = "Sin registrar"
+        self.new_contact_type = 'other'
         auth_screen = self.root.get_screen('auth')
         if 'login_password' in auth_screen.ids:
             auth_screen.ids.login_password.text = ""

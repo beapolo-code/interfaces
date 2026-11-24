@@ -10,6 +10,7 @@ de datos desde cero ejecuta: python database/reset_database.py
 
 import hashlib
 import os
+import traceback
 from pathlib import Path
 
 import psycopg2
@@ -198,6 +199,61 @@ def get_cameras_list():
                 return cur.fetchall()
     except Exception:
         return []
+
+
+def get_emergency_contacts():
+    """Obtiene los contactos de emergencia activos desde la base de datos."""
+    try:
+        with get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT id, name, type::text AS contact_type, phone, email,
+                           receives_email, is_active
+                    FROM emergency_contacts
+                    WHERE is_active = TRUE
+                    ORDER BY id;
+                    """
+                )
+                return [dict(row) for row in cur.fetchall()]
+    except Exception:
+        traceback.print_exc()
+        return []
+
+
+def add_emergency_contact(name: str, contact_type: str, phone: str,
+                          email: str = None, receives_email: bool = False):
+    """Guarda un nuevo contacto de emergencia y devuelve (éxito, mensaje)."""
+    name = (name or '').strip()
+    phone = (phone or '').strip()
+    email = (email or '').strip() or None
+    contact_type = (contact_type or 'other').strip().lower()
+
+    if not name:
+        return False, "Ingresa el nombre del contacto."
+    if not phone:
+        return False, "Ingresa el teléfono del contacto."
+
+    valid_types = {'police', 'firefighter', 'medical', 'other'}
+    if contact_type not in valid_types:
+        contact_type = 'other'
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO emergency_contacts
+                        (name, type, phone, email, receives_email, is_active)
+                    VALUES (%s, %s, %s, %s, %s, TRUE)
+                    RETURNING id;
+                    """,
+                    (name, contact_type, phone, email, bool(receives_email))
+                )
+                conn.commit()
+        return True, "Contacto de emergencia guardado correctamente."
+    except Exception as e:
+        return False, f"No se pudo guardar el contacto: {e}"
 
 
 def record_sos_alert(user_id: int = None, source: str = 'mobile'):
