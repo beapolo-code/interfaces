@@ -286,6 +286,7 @@ function triggerEmergencyAlert() {
 }
 
 function cancelSOSAlert() {
+    if (!window.confirm('¿Desactivar la alerta SOS?')) return;
     const overlay = document.getElementById('alert-overlay');
     if (overlay) overlay.classList.remove('active');
     stopAudioSiren();

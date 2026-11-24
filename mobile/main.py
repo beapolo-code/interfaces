@@ -35,9 +35,17 @@ from kivy.properties import (
     StringProperty,
 )
 from kivy.uix.screenmanager import CardTransition
+from kivy.uix.widget import Widget
 from kivy.utils import get_color_from_hex, platform
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.dialog import (
+    MDDialog,
+    MDDialogButtonContainer,
+    MDDialogHeadlineText,
+    MDDialogSupportingText,
+)
 from kivymd.uix.label import MDIcon, MDLabel
 from kivymd.uix.navigationbar import MDNavigationItem
 from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
@@ -1356,7 +1364,7 @@ MDScreenManager:
             height: '52dp'
             pos_hint: {"center_x": .5, "center_y": .34}
             radius: [100, 100, 100, 100]
-            on_release: app.cancel_sos_alert()
+            on_release: app.confirm_cancel_sos_alert()
 
             MDButtonText:
                 text: "DESACTIVAR ALERTA SOS"
@@ -1726,6 +1734,7 @@ class ExpressiveApp(MDApp):
         super().__init__(**kwargs)
         self._sos_event = None
         self._sos_elapsed = 0.0
+        self._deactivate_dialog = None
 
     def build(self):
         self.title = "Seguridad SOS - Material Design 3 (Vigía DB)"
@@ -2116,6 +2125,52 @@ class ExpressiveApp(MDApp):
         except Exception:
             traceback.print_exc()
         self.show_snackbar("Alerta SOS transmitida a emergencias.")
+
+    def confirm_cancel_sos_alert(self):
+        """Pide confirmación antes de dar por terminada la alerta SOS."""
+        if self._deactivate_dialog is None:
+            dialog = MDDialog(
+                MDDialogHeadlineText(
+                    text="¿Desactivar la alerta SOS?",
+                    theme_text_color="Custom",
+                    text_color=self.text_primary,
+                ),
+                MDDialogSupportingText(
+                    text="La alerta dejará de transmitirse a emergencias.",
+                    theme_text_color="Custom",
+                    text_color=self.text_secondary,
+                ),
+                MDDialogButtonContainer(
+                    Widget(),
+                    MDButton(
+                        MDButtonText(text="Cancelar"),
+                        style="text",
+                        on_release=lambda *args: dialog.dismiss(),
+                    ),
+                    MDButton(
+                        MDButtonText(
+                            text="Desactivar",
+                            theme_text_color="Custom",
+                            text_color=self.md3_on_sos,
+                        ),
+                        style="filled",
+                        theme_bg_color="Custom",
+                        md_bg_color=self.sos_red,
+                        on_release=lambda *args: self._confirm_deactivate_sos(dialog),
+                    ),
+                    spacing="8dp",
+                ),
+                theme_bg_color="Custom",
+                md_bg_color=self.bg_card,
+            )
+            self._deactivate_dialog = dialog
+
+        if not self._deactivate_dialog._is_open:
+            self._deactivate_dialog.open()
+
+    def _confirm_deactivate_sos(self, dialog):
+        dialog.dismiss()
+        self.cancel_sos_alert()
 
     def cancel_sos_alert(self):
         self.sos_alert_active = False

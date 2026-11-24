@@ -1471,6 +1471,7 @@
         }
 
         function cancelSOSAlert() {
+            if (!window.confirm('¿Desactivar la alerta SOS?')) return;
             document.getElementById('alert-overlay').classList.remove('active');
             showToast('Alerta SOS desactivada');
         }
