@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel web de escritorio de Seguridad SOS: barra lateral, cámaras, perfil y alerta SOS.">
+    <title>Seguridad SOS - Panel Web de Escritorio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* Paleta original VIGÍA SOS restaurada: rojos vívidos, cian y azul de siempre */
+            --md-sys-color-primary: #D32F2F;
+            --md-sys-color-on-primary: #FFFFFF;
+            --md-sys-color-primary-container: #4D0008;
+            --md-sys-color-on-primary-container: #FFFFFF;
+
+            --md-sys-color-secondary: #00F2FE;
+            --md-sys-color-on-secondary: #0A0E24;
+            --md-sys-color-secondary-container: #141A38;
+            --md-sys-color-on-secondary-container: #00F2FE;
+
+            --md-sys-color-tertiary: #2563EB;
+            --md-sys-color-on-tertiary: #FFFFFF;
+            --md-sys-color-tertiary-container: #2563EB;
+            --md-sys-color-on-tertiary-container: #FFFFFF;
+
+            --md-sys-color-background: #0A0E24;
+            --md-sys-color-on-background: #FFFFFF;
+            --md-sys-color-surface: #1E2750;
+            --md-sys-color-on-surface: #FFFFFF;
+            --md-sys-color-surface-variant: #141A38;
+            --md-sys-color-on-surface-variant: #A0B0D8;
+            --md-sys-color-surface-container: #1E2750;
+            --md-sys-color-surface-container-high: #28346A;
+            --md-sys-color-outline: #384878;
+
+            --md-sys-color-error: #FF2D55;
+            --md-sys-color-on-error: #FFFFFF;
+            --md-sys-color-error-container: #431D78;
+            --md-sys-color-on-error-container: #00F2FE;
+
+            /* Acción SOS: rojo original con texto claro */
+            --md-sys-color-sos: #FF2D55;
+            --md-sys-color-on-sos: #FFFFFF;
+            --md-sys-color-sos-hover: #E11D48;
+            --md-sys-color-success: #4CAF50;
+            --md-sys-color-on-success: #FFFFFF;
+            --md-sys-color-success-container: #0D3E1A;
+
+            --md-sys-rgb-sos: 255, 45, 85;
+            --md-sys-rgb-secondary: 0, 242, 254;
+            --md-sys-rgb-tertiary: 37, 99, 235;
+            --md-sys-rgb-on-sos: 255, 255, 255;
+            --md-sys-rgb-on-surface: 255, 255, 255;
+            --md-sys-rgb-background: 0, 0, 0;
+            --md-sys-rgb-sos-hover: 225, 29, 72;
+            --md-sys-rgb-success-container: 13, 62, 26;
+
+            /* Alias originales usados por los componentes existentes */
+            --bg-main: #0A0E24;
+            --bg-input-nav: #141A38;
+            --bg-card: #1E2750;
+            --border-input: #384878;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0B0D8;
+            --accent-cyan: #00F2FE;
+            --btn-primary: #FF2D55;
+            --btn-primary-hover: #E11D48;
+            --zone-alert: #431D78;
+            --sos-red: #FF2D55;
+            --action-blue: #2563EB;
+            --glow-sos: 0 0 28px rgba(255, 45, 85, 0.45);
+
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-pill: 100px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Utilidades */
+        .text-cyan {
+            color: var(--accent-cyan);
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+
+        .text-sm {
+            font-size: 14px;
+        }
+
+        .text-xs {
+            font-size: 12px;
+        }
+
+        .mt-12 {
+            margin-top: 12px;
+        }
+
+        .mt-16 {
+            margin-top: 16px;
+        }
+
+        .mt-24 {
+            margin-top: 24px;
+        }
+
+        /* =========================================================
+           1. VISTA DE AUTENTICACIÓN (ESCRITORIO CENTRADO 2 COLUMNAS)
+           ========================================================= */
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 960px;
+            background-color: var(--bg-input-nav);
+            border: 1px solid var(--border-input);
+            border-radius: var(--radius-xl);
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            overflow: hidden;
+        }
+
+        .auth-brand-panel {
+            background-color: var(--zone-alert);
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo .material-symbols-rounded {
+            font-size: 38px;
+            color: var(--accent-cyan);
+        }
+
+        .brand-logo h1 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0.6px;
+        }
+
+        .brand-features {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .brand-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .auth-form-panel {
+            padding: 44px 42px;
+        }
+
+        .md3-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background-color: var(--btn-primary);
+            color: var(--text-primary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        /* Campos de texto */
+        .md3-text-field {
+            position: relative;
+            background-color: var(--bg-main);
+            border: 1.5px solid var(--border-input);
+            border-radius: 14px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+        }
+
+        .md3-text-field:focus-within {
+            border-color: var(--accent-cyan);
+        }
+
+        .md3-text-field .icon {
+            color: var(--accent-cyan);
+            margin-right: 12px;
+        }
+
+        .md3-text-field input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            width: 100%;
+            padding: 14px 0 4px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .md3-text-field label {
+            position: absolute;
+            left: 50px;
+            top: 17px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: 0.2s;
+            pointer-events: none;
+        }
+
+        .md3-text-field input:focus~label,
+        .md3-text-field input:not(:placeholder-shown)~label {
+            top: 5px;
+            font-size: 11px;
+            color: var(--accent-cyan);
+        }
+
+        /* Botones */
+        .md3-btn-primary {
+            background-color: var(--btn-primary);
+            color: var(--text-primary);
+            border: none;
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .md3-btn-secondary {
+            background-color: var(--bg-card);
+            color: var(--accent-cyan);
+            border: none;
+            padding: 13px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* =========================================================
+           2. LAYOUT PRINCIPAL DE ESCRITORIO (SIDEBAR + CONTENIDO)
+           ========================================================= */
+        .dashboard-layout {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .dashboard-layout.active {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+        }
+
+        /* Barra Lateral */
+        .sidebar {
+            background-color: var(--bg-input-nav);
+            border-right: 1px solid var(--border-input);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: visible;
+            z-index: 20;
+        }
+
+        .sidebar > div {
+            width: 100%;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 28px;
+        }
+
+        .nav-link {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 14px 16px;
+            min-height: 48px;
+            flex-shrink: 0;
+            border-radius: var(--radius-pill);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            width: 100%;
+            overflow: visible;
+            z-index: 1;
+        }
+
+        .nav-link:hover {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        /* Botón de alerta SIEMPRE visible en la barra lateral */
+        .nav-link--alert {
+            background-color: rgba(var(--md-sys-rgb-sos), 0.14);
+            color: var(--btn-primary);
+            border: 1px solid var(--btn-primary);
+            font-weight: 700;
+        }
+
+        .sidebar-nav .nav-link--alert:hover:not(.active),
+        .sidebar-nav .nav-link--alert:focus-visible {
+            background-color: var(--btn-primary);
+            color: var(--md-sys-color-on-sos);
+            border-color: var(--btn-primary);
+            transform: translateX(4px);
+            box-shadow: 0 6px 18px rgba(var(--md-sys-rgb-sos), 0.45);
+        }
+
+        .sidebar-nav .nav-link--alert:active {
+            transform: scale(0.97);
+        }
+
+        .nav-link:focus-visible,
+        .md3-btn-primary:focus-visible,
+        .md3-btn-secondary:focus-visible {
+            outline: 3px solid var(--md-sys-color-secondary);
+            outline-offset: 2px;
+        }
+
+        .nav-link.active {
+            background-color: var(--btn-primary);
+            color: var(--md-sys-color-on-sos);
+            font-weight: 700;
+        }
+
+        /* Área de Contenido Principal */
+        .main-content {
+            padding: 32px 40px;
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--bg-card);
+        }
+
+        .status-pill {
+            background-color: var(--zone-alert);
+            color: var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* =========================================================
+           TRANSICIONES DE VISTA Y LOS 3 ESTADOS (MD3 EXPRESSIVE)
+           ========================================================= */
+        .view-section {
+            display: none;
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        .view-section.active {
+            display: block;
+            opacity: 1;
+            animation: desktopViewEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes desktopViewEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(22px) scale(0.985);
+                filter: blur(3px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /* Cascada de elementos escalonados */
+        .view-section.active .stagger-1 {
+            animation: staggerDesktop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both 0.05s;
+        }
+
+        .view-section.active .stagger-2 {
+            animation: staggerDesktop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both 0.12s;
+        }
+
+        .view-section.active .stagger-3 {
+            animation: staggerDesktop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both 0.18s;
+        }
+
+        .view-section.active .stagger-4 {
+            animation: staggerDesktop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both 0.24s;
+        }
+
+        @keyframes staggerDesktop {
+            0% {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 1. ESTADO DE REPOSO (REST / IDLE) */
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-cyan);
+            display: inline-block;
+            margin-right: 6px;
+            animation: liveDotBeacon 2s infinite ease-in-out;
+            vertical-align: middle;
+        }
+
+        @keyframes liveDotBeacon {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: 0 0 8px var(--accent-cyan);
+            }
+
+            50% {
+                opacity: 0.35;
+                transform: scale(0.75);
+                box-shadow: 0 0 2px var(--accent-cyan);
+            }
+        }
+
+        @keyframes sosReposoBreathing {
+
+            0%,
+            100% {
+                box-shadow: 0 0 24px rgba(var(--md-sys-rgb-sos), 0.35), 0 8px 24px rgba(var(--md-sys-rgb-background), 0.5);
+                transform: scale(1);
+            }
+
+            50% {
+                box-shadow: 0 0 48px rgba(var(--md-sys-rgb-sos), 0.65), 0 12px 34px rgba(var(--md-sys-rgb-background), 0.6);
+                transform: scale(1.02);
+            }
+        }
+
+        /* 2. ESTADO DE INTERACCIÓN (HOVER / FOCUS) */
+        .md3-btn-primary,
+        .md3-btn-secondary,
+        .action-card,
+        .md3-card,
+        .tab-btn,
+        .md3-chip {
+            transition: all 0.24s cubic-bezier(0.2, 0.9, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link {
+            transition: all 0.24s cubic-bezier(0.2, 0.9, 0.2, 1);
+            position: relative;
+        }
+
+        .md3-btn-primary:hover {
+            background-color: var(--btn-primary-hover);
+            transform: translateY(-2px) scale(1.015);
+            box-shadow: 0 8px 25px rgba(var(--md-sys-rgb-sos), 0.55), 0 0 14px rgba(var(--md-sys-rgb-secondary), 0.35);
+        }
+
+        .md3-btn-secondary:hover {
+            background-color: rgba(var(--md-sys-rgb-secondary), 0.14);
+            outline: 1px solid var(--accent-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(var(--md-sys-rgb-secondary), 0.25);
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(var(--md-sys-rgb-tertiary), 0.45);
+            outline: 1.5px solid var(--accent-cyan);
+        }
+
+        .md3-card:hover {
+            transform: translateY(-3px);
+            border: 1px solid rgba(var(--md-sys-rgb-secondary), 0.5);
+            box-shadow: 0 14px 30px rgba(var(--md-sys-rgb-background), 0.45), 0 0 16px rgba(var(--md-sys-rgb-secondary), 0.12);
+        }
+
+        .nav-link:hover:not(.active) {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .tab-btn:hover:not(.active),
+        .md3-chip:hover:not(.active) {
+            background-color: var(--md-sys-color-surface-container-high);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        /* 3. ESTADO DE ACCIÓN (ACTIVE / PRESSED / TRIGGER / FEEDBACK) */
+        .md3-btn-primary:active,
+        .md3-btn-secondary:active,
+        .action-card:active,
+        .tab-btn:active,
+        .md3-chip:active {
+            transform: scale(0.96) translateY(1px) !important;
+            box-shadow: 0 2px 6px rgba(var(--md-sys-rgb-background), 0.6) !important;
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+        }
+
+        /* Ripple Effect */
+        .md3-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(var(--md-sys-rgb-on-surface), 0.35);
+            transform: scale(0);
+            animation: rippleEffect 0.55s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(3.5);
+                opacity: 0;
+            }
+        }
+
+        /* Botón SOS en Acción (Mantenido) */
+        .sos-btn.holding {
+            animation: sosAccionHeartbeat 0.35s infinite ease-in-out !important;
+            box-shadow: 0 0 70px rgba(var(--md-sys-rgb-sos), 0.95), 0 0 120px rgba(var(--md-sys-rgb-secondary), 0.6) !important;
+            border-color: var(--accent-cyan) !important;
+        }
+
+        @keyframes sosAccionHeartbeat {
+
+            0%,
+            100% {
+                transform: scale(0.96);
+            }
+
+            50% {
+                transform: scale(1.035);
+            }
+        }
+
+        /* Sacudida de error */
+        @keyframes shakeErrorAction {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-8px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(8px);
+            }
+        }
+
+        .shake-error {
+            animation: shakeErrorAction 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+            border-color: var(--sos-red) !important;
+        }
+
+        /* Toast con Rebote Elástico en Acción */
+        @keyframes toastActionBounce {
+            0% {
+                transform: translate(-50%, 50px) scale(0.85);
+                opacity: 0;
+            }
+
+            60% {
+                transform: translate(-50%, -8px) scale(1.03);
+                opacity: 1;
+            }
+
+            85% {
+                transform: translate(-50%, 2px) scale(0.99);
+            }
+
+            100% {
+                transform: translate(-50%, 0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .md3-toast.show {
+            display: flex;
+            animation: toastActionBounce 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Ondas de Radar en Alerta SOS */
+        .radar-wave {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid rgba(var(--md-sys-rgb-on-sos), 0.7);
+            animation: radarWaveExpand 1.6s infinite ease-out;
+            pointer-events: none;
+        }
+
+        .radar-wave:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .radar-wave:nth-child(3) {
+            animation-delay: 1.0s;
+        }
+
+        @keyframes radarWaveExpand {
+            0% {
+                transform: scale(0.6);
+                opacity: 0.9;
+            }
+
+            100% {
+                transform: scale(2.4);
+                opacity: 0;
+            }
+        }
+
+        /* Grid de Inicio (2 Columnas) */
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .sos-zone {
+            background-color: var(--zone-alert);
+            border-radius: var(--radius-xl);
+            padding: 36px 24px;
+            text-align: center;
+        }
+
+        .sos-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-ring {
+            position: absolute;
+            inset: 0;
+            width: 220px;
+            height: 220px;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: transparent;
+            stroke: var(--accent-cyan);
+            stroke-width: 7;
+            stroke-dasharray: 628.32;
+            stroke-dashoffset: 628.32;
+            transition: stroke-dashoffset 0.05s linear;
+            filter: drop-shadow(0 0 8px var(--accent-cyan));
+        }
+
+        .sos-btn {
+            width: 186px;
+            height: 186px;
+            border-radius: 50%;
+            background-color: var(--sos-red);
+            color: var(--text-primary);
+            border: 6px solid var(--md-sys-color-on-sos);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            user-select: none;
+            animation: sosReposoBreathing 3.2s infinite ease-in-out;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.2, 1);
+        }
+
+        .sos-btn:hover {
+            transform: scale(1.035);
+            box-shadow: 0 0 55px rgba(var(--md-sys-rgb-sos), 0.85), 0 0 95px rgba(var(--md-sys-rgb-sos), 0.45);
+        }
+
+        .sos-btn:active {
+            transform: scale(0.95);
+        }
+
+        .sos-text {
+            font-size: 48px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .sos-subtext {
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* Tarjetas y Acciones */
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .action-card {
+            background-color: var(--action-blue);
+            color: var(--text-primary);
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .md3-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .contact-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--bg-input-nav);
+        }
+
+        .contact-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Grid de Cámaras (3 Columnas en PC) */
+        .cameras-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .md3-chip-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .md3-chip {
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
+            border: none;
+            padding: 10px 18px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .md3-chip.active {
+            background-color: var(--btn-primary);
+            color: var(--text-primary);
+        }
+
+        .cameras-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .camera-feed {
+            height: 180px;
+            background-color: var(--bg-input-nav);
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background-color: var(--zone-alert);
+            color: var(--accent-cyan);
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-badge.rec {
+            background-color: var(--sos-red);
+            color: var(--text-primary);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--accent-cyan);
+            cursor: pointer;
+        }
+
+        /* Grid de Perfil (2 Columnas) */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--bg-input-nav);
+        }
+
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Overlay de Alerta SOS */
+        .alert-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: var(--sos-red);
+            color: var(--text-primary);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 32px;
+            z-index: 300;
+            gap: 18px;
+        }
+
+        .alert-overlay.active {
+            display: flex;
+        }
+
+        /* Toast */
+        .md3-toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background-color: var(--zone-alert);
+            color: var(--text-primary);
+            border: 1px solid var(--accent-cyan);
+            padding: 14px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 400;
+        }
+
+        .md3-toast.show {
+            display: flex;
+        }
+
+        /* Adaptación para pantallas medianas: la sidebar pasa a barra superior */
+        @media (max-width: 1024px) {
+            .dashboard-layout.active {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 16px 20px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-input);
+            }
+
+            .sidebar > div {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                margin-top: 0;
+            }
+
+            .nav-link {
+                width: auto;
+                white-space: nowrap;
+            }
+
+            .sidebar .md3-btn-secondary {
+                width: auto !important;
+                flex-shrink: 0;
+            }
+
+            .cameras-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .home-grid,
+            .profile-grid,
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         PANTALLA DE AUTENTICACIÓN (LOGIN / REGISTRO)
+         ========================================================= -->
+    <div id="auth-view" class="auth-wrapper">
+        <div class="auth-container">
+            <div class="auth-brand-panel">
+                <div>
+                    <div class="brand-logo">
+                        <span class="material-symbols-rounded">gpp_good</span>
+                        <h1>SEGURIDAD SOS</h1>
+                    </div>
+                    <p class="text-secondary mt-12">Tu tranquilidad empieza aquí. Panel de control web para monitoreo y
+                        emergencias en tiempo real.</p>
+
+                    <div class="brand-features">
+                        <div class="brand-feature-item">
+                            <span class="material-symbols-rounded text-cyan">emergency_share</span>
+                            <span>Alerta SOS de 3 segundos con ubicación GPS</span>
+                        </div>
+                        <div class="brand-feature-item">
+                            <span class="material-symbols-rounded text-cyan">videocam</span>
+                            <span>Monitoreo simultáneo de cámaras de seguridad</span>
+                        </div>
+                        <div class="brand-feature-item">
+                            <span class="material-symbols-rounded text-cyan">lock</span>
+                            <span>Acceso protegido con PIN de seguridad de 4 dígitos</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-secondary">Versión Web Escritorio • Material Design 3</p>
+            </div>
+
+            <div class="auth-form-panel">
+                <div class="md3-tabs">
+                    <button type="button" class="tab-btn active" id="tab-login" onclick="switchAuthTab('login')">
+                        <span class="material-symbols-rounded" style="font-size:18px;">login</span>
+                        INICIAR SESIÓN
+                    </button>
+                    <button type="button" class="tab-btn" id="tab-register" onclick="switchAuthTab('register')">
+                        <span class="material-symbols-rounded" style="font-size:18px;">person_add</span>
+                        CREAR CUENTA
+                    </button>
+                </div>
+
+                <!-- Iniciar Sesión (Activo por defecto) -->
+                <div id="form-login" class="auth-form active">
+                    <h2 style="font-size:26px;">Bienvenido de nuevo</h2>
+                    <p class="text-secondary text-sm mt-12">Ingresa tu correo y contraseña para acceder al panel.</p>
+                    <form class="mt-24" onsubmit="handleAuthSubmit(event, 'login')">
+                        <div class="md3-text-field">
+                            <span class="material-symbols-rounded icon">mail</span>
+                            <input type="email" id="login-email" placeholder=" " value="admin@vigia.local" required>
+                            <label>Correo Electrónico</label>
+                        </div>
+                        <div class="md3-text-field">
+                            <span class="material-symbols-rounded icon">lock</span>
+                            <input type="password" id="login-password" placeholder=" " required>
+                            <label>Contraseña</label>
+                        </div>
+                        <p class="text-cyan text-sm" style="text-align:right; cursor:pointer;"
+                            onclick="showToast('Código de recuperación enviado')">¿Olvidaste tu contraseña?</p>
+                        <button type="submit" class="md3-btn-primary mt-16">
+                            <span class="material-symbols-rounded">login</span>
+                            INICIAR SESIÓN
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Crear Cuenta -->
+                <div id="form-register" class="auth-form">
+                    <h2 style="font-size:26px;">Crea tu cuenta SOS</h2>
+                    <p class="text-secondary text-sm mt-12">Completa tus datos para activar tu red de apoyo 24/7.</p>
+                    <form class="mt-24" onsubmit="handleAuthSubmit(event, 'register')">
+                        <div class="md3-text-field">
+                            <span class="material-symbols-rounded icon">person</span>
+                            <input type="text" id="reg-name" placeholder=" " required>
+                            <label>Nombre Completo</label>
+                        </div>
+                        <div class="md3-text-field">
+                            <span class="material-symbols-rounded icon">smartphone</span>
+                            <input type="tel" id="reg-phone" placeholder=" " required>
+                            <label>Teléfono Móvil</label>
+                        </div>
+                        <div class="md3-text-field">
+                            <span class="material-symbols-rounded icon">mail</span>
+                            <input type="email" id="reg-email" placeholder=" " required>
+                            <label>Correo Electrónico</label>
+                        </div>
+                        <div class="md3-text-field">
+                            <span class="material-symbols-rounded icon">lock</span>
+                            <input type="password" id="reg-password" placeholder=" " required>
+                            <label>Contraseña de seguridad</label>
+                        </div>
+                        <button type="submit" class="md3-btn-primary mt-16">
+                            <span class="material-symbols-rounded">shield</span>
+                            CREAR MI CUENTA SOS
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         PANEL PRINCIPAL DE ESCRITORIO (SIDEBAR + VISTAS)
+         ========================================================= -->
+    <div id="dashboard-view" class="dashboard-layout">
+        <!-- Barra Lateral -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand-logo">
+                    <span class="material-symbols-rounded"
+                        style="font-size:30px; color:var(--btn-primary);">gpp_good</span>
+                    <h1 style="font-size:18px;">SEGURIDAD SOS</h1>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <button type="button" class="nav-link nav-link--alert" id="nav-alert"
+                        onclick="triggerSidebarSOS()" aria-label="Disparar alerta SOS ahora">
+                        <span class="material-symbols-rounded" aria-hidden="true">warning</span>
+                        <span>Disparar alerta SOS</span>
+                    </button>
+                    <button type="button" class="nav-link active" id="nav-home" onclick="switchView('home')">
+                        <span class="material-symbols-rounded">shield_alert</span>
+                        Inicio / Alerta SOS
+                    </button>
+                    <button type="button" class="nav-link" id="nav-cameras" onclick="switchView('cameras')">
+                        <span class="material-symbols-rounded">videocam</span>
+                        Mis Cámaras
+                    </button>
+                    <button type="button" class="nav-link" id="nav-profile" onclick="switchView('profile')">
+                        <span class="material-symbols-rounded">settings</span>
+                        Mi Perfil
+                    </button>
+                </nav>
+            </div>
+
+            <button type="button" class="md3-btn-secondary" style="width:100%;" onclick="logout()">
+                <span class="material-symbols-rounded">logout</span>
+                Cerrar sesión
+            </button>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h2 id="topbar-greeting" style="font-size:26px;">Hola, Usuario</h2>
+                    <p class="text-secondary text-sm">Tu red de apoyo y monitoreo está conectada.</p>
+                </div>
+                <div class="status-pill">
+                    <span class="material-symbols-rounded" style="font-size:18px;">verified_user</span>
+                    Protección GPS Activa
+                </div>
+            </header>
+
+            <!-- VISTA: INICIO / SOS -->
+            <section id="view-home" class="view-section active">
+                <div class="home-grid">
+                    <!-- Columna Izquierda: Botón SOS -->
+                    <div class="sos-zone">
+                        <div class="sos-wrapper">
+                            <svg class="progress-ring">
+                                <circle id="progress-circle" class="progress-ring-circle" cx="110" cy="110" r="100">
+                                </circle>
+                            </svg>
+                            <button type="button" class="sos-btn" id="btnSos">
+                                <span class="sos-text">SOS</span>
+                                <span class="sos-subtext">PEDIR AYUDA</span>
+                            </button>
+                        </div>
+                        <p id="sos-status-label" style="font-weight:700; font-size:16px;">Mantén pulsado 3 segundos</p>
+                        <p class="text-secondary text-sm mt-12">Envía una alerta inmediata y tus coordenadas GPS a la
+                            policía y a tus contactos de emergencia.</p>
+                    </div>
+
+                    <!-- Columna Derecha: Accesos Rápidos y Contactos -->
+                    <div>
+                        <h3 class="section-title">ACCESOS RÁPIDOS</h3>
+                        <div class="actions-grid">
+                            <button type="button" class="action-card"
+                                onclick="showToast('Iniciando llamada de emergencia al 911...')">
+                                <span class="material-symbols-rounded text-cyan" style="font-size:28px;">call</span>
+                                <span>Llamar al 911</span>
+                            </button>
+                            <button type="button" class="action-card"
+                                onclick="showToast('Ubicación en tiempo real compartida')">
+                                <span class="material-symbols-rounded text-cyan"
+                                    style="font-size:28px;">location_on</span>
+                                <span>Compartir ubicación</span>
+                            </button>
+                        </div>
+
+                        <div class="md3-card mt-16"
+                            style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;"
+                            onclick="switchView('cameras')">
+                            <div style="display:flex; align-items:center; gap:14px;">
+                                <span class="material-symbols-rounded text-cyan" style="font-size:28px;">videocam</span>
+                                <div>
+                                    <div style="font-weight:700;">Ver cámaras de seguridad</div>
+                                    <div class="text-secondary text-xs">3 dispositivos conectados en línea</div>
+                                </div>
+                            </div>
+                            <span class="material-symbols-rounded text-cyan">chevron_right</span>
+                        </div>
+
+                        <div class="md3-card mt-16">
+                            <h3 class="section-title" style="margin-bottom:8px;">CONTACTOS DE EMERGENCIA</h3>
+                            <div class="contact-row">
+                                <div>
+                                    <div style="font-weight:700;">Monica Amaya</div>
+                                    <div class="text-secondary text-xs">Hermana • Contacto principal</div>
+                                </div>
+                                <button type="button" class="icon-btn"
+                                    onclick="showToast('Llamando a Monica Amaya...')">
+                                    <span class="material-symbols-rounded">call</span>
+                                </button>
+                            </div>
+                            <div class="contact-row">
+                                <div>
+                                    <div style="font-weight:700;">Carlos Pérez</div>
+                                    <div class="text-secondary text-xs">Amigo • Contacto de apoyo</div>
+                                </div>
+                                <button type="button" class="icon-btn"
+                                    onclick="showToast('Llamando a Carlos Pérez...')">
+                                    <span class="material-symbols-rounded">call</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISTA: MIS CÁMARAS -->
+            <section id="view-cameras" class="view-section">
+                <div class="cameras-header">
+                    <div class="md3-chip-group">
+                        <button type="button" class="md3-chip active" onclick="filterCameras('all', this)">Todas
+                            (3)</button>
+                        <button type="button" class="md3-chip" onclick="filterCameras('online', this)">En línea
+                            (2)</button>
+                        <button type="button" class="md3-chip" onclick="filterCameras('recording', this)">Grabando
+                            (1)</button>
+                    </div>
+                    <button type="button" class="md3-btn-primary" style="width:auto;"
+                        onclick="showToast('Buscando nuevas cámaras en la red Wi-Fi...')">
+                        <span class="material-symbols-rounded">add</span>
+                        AÑADIR CÁMARA
+                    </button>
+                </div>
+
+                <div class="cameras-grid">
+                    <div class="md3-card camera-item online stagger-1">
+                        <div class="camera-feed">
+                            <span class="status-badge"><span class="live-dot"></span>EN LÍNEA • CAM 01</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:56px; color:var(--border-input);">videocam</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight:700;">Entrada principal</div>
+                                <div class="text-secondary text-xs">Resolución 1080p • 30fps</div>
+                            </div>
+                            <button type="button" class="icon-btn" onclick="showToast('Maximizando Entrada Principal')">
+                                <span class="material-symbols-rounded">fullscreen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="md3-card camera-item online stagger-2">
+                        <div class="camera-feed">
+                            <span class="status-badge"><span class="live-dot"></span>EN LÍNEA • CAM 02</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:56px; color:var(--border-input);">yard</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight:700;">Patio trasero</div>
+                                <div class="text-secondary text-xs">Visión nocturna infrarroja activa</div>
+                            </div>
+                            <button type="button" class="icon-btn" onclick="showToast('Maximizando Patio Trasero')">
+                                <span class="material-symbols-rounded">fullscreen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="md3-card camera-item recording stagger-3">
+                        <div class="camera-feed">
+                            <span class="status-badge rec"><span class="live-dot"
+                                    style="background-color:var(--md-sys-color-sos);"></span>REC • CAM 03</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:56px; color:var(--border-input);">garage</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight:700;">Garaje vehicular</div>
+                                <div class="text-secondary text-xs">Detección de movimiento activada</div>
+                            </div>
+                            <button type="button" class="icon-btn" onclick="showToast('Maximizando Garaje')">
+                                <span class="material-symbols-rounded">fullscreen</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISTA: MI PERFIL -->
+            <section id="view-profile" class="view-section">
+                <div class="profile-grid">
+                    <div class="md3-card">
+                        <h3 class="section-title">DATOS PERSONALES</h3>
+                        <div class="profile-item">
+                            <span class="material-symbols-rounded text-cyan">account_circle</span>
+                            <div>
+                                <div id="profile-name-display" style="font-weight:700;">Usuario</div>
+                                <div class="text-secondary text-xs">Titular de la cuenta SOS</div>
+                            </div>
+                        </div>
+                        <div class="profile-item">
+                            <span class="material-symbols-rounded text-cyan">smartphone</span>
+                            <div>
+                                <div id="profile-phone-display" style="font-weight:700;">Sin registrar</div>
+                                <div class="text-secondary text-xs">Teléfono móvil registrado</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md3-card">
+                        <h3 class="section-title">SEGURIDAD Y EMERGENCIAS</h3>
+                        <div class="profile-item">
+                            <span class="material-symbols-rounded text-cyan">verified_user</span>
+                            <div>
+                                <div style="font-weight:700;">Protección Satelital GPS</div>
+                                <div class="text-cyan text-xs">Activa (Precisión: 3 metros)</div>
+                            </div>
+                        </div>
+                        <div class="profile-item">
+                            <span class="material-symbols-rounded text-cyan">notifications_active</span>
+                            <div>
+                                <div style="font-weight:700;">Contactos de Emergencia</div>
+                                <div class="text-secondary text-xs">2 contactos configurados</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- OVERLAY ALERTA SOS -->
+    <div id="alert-overlay" class="alert-overlay">
+        <div class="radar-wave"></div>
+        <div class="radar-wave"></div>
+        <div class="radar-wave"></div>
+        <span class="material-symbols-rounded"
+            style="font-size:80px; position:relative; z-index:2;">notifications_active</span>
+        <h2 style="font-size:32px; position:relative; z-index:2;">¡ALERTA SOS TRANSMITIDA!</h2>
+        <p class="text-sm" style="max-width:460px; position:relative; z-index:2;">Coordenadas GPS enviadas a la patrulla
+            policial y a tus contactos de emergencia.</p>
+        <button type="button" class="md3-btn-primary"
+            style="width:auto; background:var(--md-sys-color-on-sos); color:var(--md-sys-color-sos); padding:16px 32px; position:relative; z-index:2;"
+            onclick="cancelSOSAlert()">
+            <span class="material-symbols-rounded">close</span>
+            DESACTIVAR ALERTA SOS
+        </button>
+    </div>
+
+    <!-- TOAST -->
+    <div id="md3-toast" class="md3-toast">
+        <span class="material-symbols-rounded text-cyan" style="font-size:20px;">check_circle</span>
+        <span id="toast-text">Notificación</span>
+    </div>
+
+    <script>
+        let sosInterval = null;
+        let sosElapsed = 0;
+        let currentUserId = null;
+        const API_BASE = 'http://localhost:5000';
+        const circumference = 2 * Math.PI * 100;
+
+        function switchAuthTab(type) {
+            document.getElementById('tab-login').classList.toggle('active', type === 'login');
+            document.getElementById('tab-register').classList.toggle('active', type === 'register');
+            document.getElementById('form-login').classList.toggle('active', type === 'login');
+            document.getElementById('form-register').classList.toggle('active', type === 'register');
+        }
+
+        function triggerFieldShake(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const container = el.closest('.md3-text-field') || el;
+            container.classList.remove('shake-error');
+            void container.offsetWidth;
+            container.classList.add('shake-error');
+            setTimeout(() => container.classList.remove('shake-error'), 450);
+        }
+
+        async function handleAuthSubmit(event, type) {
+            event.preventDefault();
+
+            if (type === 'register') {
+                const name = document.getElementById('reg-name').value.trim();
+                const phone = document.getElementById('reg-phone').value.trim();
+                const email = document.getElementById('reg-email').value.trim();
+                const password = document.getElementById('reg-password').value.trim();
+
+                if (!name) { triggerFieldShake('reg-name'); showToast('Ingresa tu nombre completo'); return; }
+                if (!phone) { triggerFieldShake('reg-phone'); showToast('Ingresa tu teléfono'); return; }
+                if (!email) { triggerFieldShake('reg-email'); showToast('Ingresa tu correo'); return; }
+                if (!password) { triggerFieldShake('reg-password'); showToast('Ingresa una contraseña'); return; }
+
+                try {
+                    const resp = await fetch('http://localhost:5000/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, phone, password })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        showToast(data.message || 'Error al registrar en BD');
+                        return;
+                    }
+                    setUserData(data.user.name, data.user.email || data.user.phone, data.user.id);
+                    showToast(`¡Cuenta registrada en PostgreSQL! Bienvenido, ${data.user.name}`);
+                } catch (e) {
+                    setUserData(name || 'Usuario', email);
+                    showToast(`Bienvenido, ${name} (modo local)`);
+                }
+            } else {
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value.trim();
+
+                if (!email) { triggerFieldShake('login-email'); showToast('Ingresa tu correo electrónico'); return; }
+                if (!password) { triggerFieldShake('login-password'); showToast('Ingresa tu contraseña'); return; }
+
+                try {
+                    const resp = await fetch('http://localhost:5000/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        triggerFieldShake('login-password');
+                        showToast(data.message || 'Contraseña o usuario incorrecto');
+                        return;
+                    }
+                    setUserData(data.user.name, data.user.email || data.user.phone, data.user.id);
+                    showToast(`Sesión iniciada con éxito en PostgreSQL`);
+                } catch (e) {
+                    setUserData('Administrador', email);
+                    showToast('Sesión iniciada (modo local)');
+                }
+            }
+
+            document.getElementById('auth-view').style.display = 'none';
+            const dash = document.getElementById('dashboard-view');
+            dash.classList.add('active');
+            switchView('home');
+        }
+
+        function setUserData(name, phone, id = null) {
+            currentUserId = id;
+            document.getElementById('topbar-greeting').textContent = `Hola, ${name.split(' ')[0]}`;
+            document.getElementById('profile-name-display').textContent = name;
+            document.getElementById('profile-phone-display').textContent = phone;
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(v => {
+                v.classList.remove('active');
+            });
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${viewName}`);
+            if (activeNav) activeNav.classList.add('active');
+        }
+
+        function filterCameras(filter, btn) {
+            document.querySelectorAll('.md3-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.camera-item').forEach(cam => {
+                cam.style.display = (filter === 'all' || cam.classList.contains(filter)) ? 'block' : 'none';
+            });
+        }
+
+        function logout() {
+            const passInputs = document.querySelectorAll('input[type="password"]');
+            passInputs.forEach(i => i.value = '');
+            document.getElementById('dashboard-view').classList.remove('active');
+            document.getElementById('auth-view').style.display = 'flex';
+            showToast('Has cerrado sesión con éxito');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('md3-toast');
+            document.getElementById('toast-text').textContent = msg;
+            toast.classList.remove('show');
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+        }
+
+        // =========================================================================
+        // BOTÓN SOS ESCRITORIO: ESTADOS DE REPOSO, INTERACCIÓN Y ACCIÓN (3s)
+        // =========================================================================
+        const btnSos = document.getElementById('btnSos');
+        const circle = document.getElementById('progress-circle');
+        const statusLabel = document.getElementById('sos-status-label');
+
+        function startSosHold(e) {
+            e.preventDefault();
+            cancelSosHold();
+            btnSos.classList.add('holding');
+            sosElapsed = 0;
+            sosInterval = setInterval(() => {
+                sosElapsed += 50;
+                const progress = Math.min(sosElapsed / 3000, 1);
+                circle.style.strokeDashoffset = circumference * (1 - progress);
+                const rem = Math.max(1, Math.ceil((3000 - sosElapsed) / 1000));
+                statusLabel.textContent = `¡ENVIANDO ALERTA EN ${rem}s!`;
+                if (sosElapsed >= 3000) {
+                    cancelSosHold();
+                    fireSOS();
+                }
+            }, 50);
+        }
+
+        function cancelSosHold() {
+            btnSos.classList.remove('holding');
+            if (sosInterval) {
+                clearInterval(sosInterval);
+                sosInterval = null;
+            }
+            circle.style.strokeDashoffset = circumference;
+            statusLabel.textContent = 'Mantén pulsado 3 segundos';
+        }
+
+        function cancelSOSAlert() {
+            document.getElementById('alert-overlay').classList.remove('active');
+            showToast('Alerta SOS desactivada');
+        }
+
+        /** Muestra el estado de emergencia y registra el SOS en la API. */
+        async function fireSOS() {
+            cancelSosHold();
+            document.getElementById('alert-overlay').classList.add('active');
+            showToast('¡Alerta transmitida a la Central Policial!');
+            try {
+                const resp = await fetch(`${API_BASE}/api/sos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUserId })
+                });
+                const data = await resp.json();
+                if (!resp.ok || !data.success) {
+                    showToast(data.message || 'Alerta enviada localmente (API no disponible)');
+                }
+            } catch (e) {
+                showToast('Alerta enviada localmente (API no disponible)');
+            }
+        }
+
+        /** Acción inmediata del botón de alerta del Sidebar. */
+        function triggerSidebarSOS() {
+            switchView('home');
+            fireSOS();
+        }
+
+        btnSos.addEventListener('mousedown', startSosHold);
+        btnSos.addEventListener('touchstart', startSosHold, { passive: false });
+        btnSos.addEventListener('mouseup', cancelSosHold);
+        btnSos.addEventListener('mouseleave', cancelSosHold);
+        btnSos.addEventListener('touchend', cancelSosHold);
+
+        // =========================================================================
+        // MATERIAL RIPPLE EFFECT EN ESCRITORIO
+        // =========================================================================
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('.md3-btn-primary, .md3-btn-secondary, .action-card, .tab-btn, .md3-chip, .nav-link');
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.className = 'md3-ripple';
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+            ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+            target.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+    </script>
+</body>
+
+</html>
