@@ -729,12 +729,12 @@ MDScreenManager:
                             cols: 2
                             spacing: '12dp'
                             size_hint_y: None
-                            height: '86dp'
+                            height: '96dp'
 
                             MDCard:
                                 orientation: 'vertical'
                                 padding: '14dp'
-                                spacing: '6dp'
+                                spacing: '8dp'
                                 theme_bg_color: "Custom"
                                 md_bg_color: app.action_blue
                                 radius: [16, 16, 16, 16]
@@ -742,7 +742,10 @@ MDScreenManager:
                                 on_release: app.show_snackbar("Llamando al 911...")
 
                                 MDIcon:
-                                    icon: "call"
+                                    icon: "phone_in_talk"
+                                    font_size: '28sp'
+                                    size_hint_y: None
+                                    height: '28dp'
                                     theme_text_color: "Custom"
                                     text_color: app.accent_cyan
 
@@ -756,7 +759,7 @@ MDScreenManager:
                             MDCard:
                                 orientation: 'vertical'
                                 padding: '14dp'
-                                spacing: '6dp'
+                                spacing: '8dp'
                                 theme_bg_color: "Custom"
                                 md_bg_color: app.action_blue
                                 radius: [16, 16, 16, 16]
@@ -764,7 +767,10 @@ MDScreenManager:
                                 on_release: app.show_snackbar("Ubicación GPS compartida")
 
                                 MDIcon:
-                                    icon: "location_on"
+                                    icon: "share_location"
+                                    font_size: '28sp'
+                                    size_hint_y: None
+                                    height: '28dp'
                                     theme_text_color: "Custom"
                                     text_color: app.accent_cyan
 
@@ -785,10 +791,12 @@ MDScreenManager:
                             on_release: app.navigate_to('cameras', 'left')
 
                             MDIcon:
-                                icon: "videocam"
+                                icon: "linked_camera"
                                 theme_text_color: "Custom"
                                 text_color: app.accent_cyan
-                                font_size: '26sp'
+                                font_size: '28sp'
+                                size_hint: None, None
+                                size: '28dp', '28dp'
                                 pos_hint: {'center_y': .5}
 
                             MDBoxLayout:
@@ -1244,8 +1252,9 @@ MDScreenManager:
     MDNavigationBar:
         id: bottom_nav
         size_hint: 1, None
-        height: '68dp'
+        height: '80dp'
         pos_hint: {"x": 0, "y": 0}
+        padding: [0, '4dp', 0, '8dp']
         theme_bg_color: "Custom"
         md_bg_color: app.bg_input_nav
         on_switch_tabs: app.on_main_tab_switched(*args)
@@ -1264,6 +1273,7 @@ MDScreenManager:
                 icon_color_normal: app.text_secondary
             MDNavigationItemLabel:
                 text: nav_home_item.label_text
+                font_size: '12sp'
                 text_color_active: app.btn_primary
                 text_color_normal: app.text_secondary
 
@@ -1280,13 +1290,14 @@ MDScreenManager:
                 icon_color_normal: app.text_secondary
             MDNavigationItemLabel:
                 text: nav_contacts_item.label_text
+                font_size: '12sp'
                 text_color_active: app.btn_primary
                 text_color_normal: app.text_secondary
 
         BottomNavItem:
             id: nav_sos_item
             screen_name: "nav_sos"
-            icon_name: "warning"
+            icon_name: "sos"
             label_text: "SOS"
             action_name: "sos"
             indicator_color: app.sos_red
@@ -1297,6 +1308,7 @@ MDScreenManager:
                 icon_color_normal: app.text_secondary
             MDNavigationItemLabel:
                 text: nav_sos_item.label_text
+                font_size: '12sp'
                 text_color_active: app.md3_error
                 text_color_normal: app.text_secondary
 
@@ -1313,6 +1325,7 @@ MDScreenManager:
                 icon_color_normal: app.text_secondary
             MDNavigationItemLabel:
                 text: nav_profile_item.label_text
+                font_size: '12sp'
                 text_color_active: app.btn_primary
                 text_color_normal: app.text_secondary
 
